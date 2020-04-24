@@ -58,9 +58,9 @@
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             const block = {
-                x: canvas.width/3,
+                x: canvas.width/4,
                 y: 100,
-                width: 300,
+                width: 400,
                 height: 70
 
             }
@@ -99,7 +99,6 @@
                                    return 3;
                      }
 
-                     //sides
                      else if ( obj1.x+grid > obj2.x && 
                                obj1.x+grid < obj2.x+10 && 
                                obj1.y+grid > obj2.y && 
@@ -128,9 +127,6 @@
                     paddle.x = maxPaddleY;
                 }
 
-                // draw paddle
-                context.fillStyle = 'white';
-                context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
                 
                 // move ball by its velocity
                 ball.x += ball.dx;
@@ -152,7 +148,7 @@
                     ball.dx *= -1;
                 }
 
-                else if (ball.y > canvas.height - grid) {
+                else if (ball.y > canvas.height - grid) {  //bottom
                     ball.y = canvas.height - grid;
                     ball.x = canvas.width/2;
                     ball.y = canvas.height/2;
@@ -178,12 +174,17 @@
                 } 
                 else if (collides(ball, block) == 3 ) {
                     ball.dy *= -1;
-                    ball.y = block.y+height + ball.width;
+                    ball.y = block.y+block.height + ball.width;
                 } 
                 else if (collides(ball, block) == 4 ) {
                     ball.dx *= -1;
                     ball.x = block.x - ball.width;
                 } 
+
+
+                // draw paddle
+                context.fillStyle = 'white';
+                context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 
                 // draw ball
                 context.fillRect(ball.x, ball.y, ball.width, ball.height);
