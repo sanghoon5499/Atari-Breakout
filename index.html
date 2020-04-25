@@ -27,7 +27,8 @@
 
             var paddleSpeed = 10;
             var ballSpeed = 5;
-
+            var numHits = 0;
+            var blockWidths = []
 
             const paddle = {
                 // start in the middle of the game on the right side
@@ -57,18 +58,44 @@
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            const block = {
-                x: canvas.width/4,
-                y: 100,
+            for (var i=0; i<5; i++){
+                min = Math.ceil(200);
+                max = Math.floor(500);
+                var x = Math.floor(Math.random() * (max - min+1) + min);
+                blockWidths.push(x);
+                alert(blockWidths);
+            }
+
+
+            var blocks = [];
+            // var h = grid;
+
+            // for (var i=0; i<5; i++){
+            //     const block = {
+            //         x: h,
+            //         y: grid*2,
+            //         width: Math.floor(Math.random() * (max - min+1) + min),
+            //         height: 70
+            //     }
+
+            //     h += block.width + grid;
+            //     block.push(block);
+
+            // }
+
+            var block = {
+                x: canvas.width/4,            // store const value objects in the array "blocks". Essentially, create an array of objects. 
+                y: grid*2,
                 width: 400,
                 height: 70
-
             }
+
+            
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // check for collision between two objects using axis-aligned bounding box (AABB)
-            // @see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+            // see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
             function collides(obj1, obj2) {
                 if (obj2 == paddle) {
                     return obj1.x < obj2.x + obj2.width && 
@@ -167,18 +194,22 @@
                 else if (collides(ball, block) == 1 ) {
                     ball.dy *= -1;
                     ball.y = block.y - ball.width;
+                    numHits++;
                 } 
                 else if (collides(ball, block) == 2 ) {
                     ball.dx *= -1;
                     ball.x = block.x+block.width + ball.width;
+                    numHits++;
                 } 
                 else if (collides(ball, block) == 3 ) {
                     ball.dy *= -1;
                     ball.y = block.y+block.height + ball.width;
+                    numHits++;
                 } 
                 else if (collides(ball, block) == 4 ) {
                     ball.dx *= -1;
                     ball.x = block.x - ball.width;
+                    numHits++;
                 } 
 
 
@@ -195,8 +226,25 @@
                 context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
 
                 // draw block
-                context.fillStyle = 'white';
-                context.fillRect(block.x, block.y, block.width, block.height);
+                //context.fillStyle = 'white';
+                //context.fillRect(block.x, block.y, block.width, block.height);
+
+                for (var i=0; i<blocks.length; i++){
+                    context.fillStyle = 'white';
+                    context.fillRect(block.x, block.y, block.width, block.height);
+                }
+
+
+                if (numHits<5){
+                    context.fillStyle = 'white';
+                    context.fillRect(block.x, block.y, block.width, block.height);
+                }
+                else{
+                    block.x=-10;
+                    block.y=-10;
+                    block.width=1;
+                    block.height=1;
+                }
 
 
             }
