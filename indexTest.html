@@ -59,15 +59,16 @@
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             for (var i=0; i<5; i++){
-                min = Math.ceil(60);
-                max = Math.floor(160);
+                min = Math.ceil(100);
+                max = Math.floor(200);
                 var x = Math.floor(Math.random() * (max - min+1) + min);
                 blockWidths.push(x);
+                //alert(blockWidths);
             }
 
 
             var blocks = [];
-            var h = grid;
+             var h = grid;
 
             // for (var i=0; i<5; i++){
             //     const block = {
@@ -87,17 +88,16 @@
                 var block = {
                     x: h,            // store const value objects in the array "blocks". Essentially, create an array of objects. 
                     y: grid*2,
-                    width: blockWidths[i],
-                    height: 70,
-                    numHits: 0
+                    width: Math.floor(Math.random() * (max - min+1) + min),
+                    height: 70
                 }
                 h += block.width + grid;
                 blocks.push(block);
             }
             //for (var i=0; i<5; i++){ 
-            // alert(blocks[0].width);
-            // alert(blocks[1].width);
-            // alert(blocks[2].width);
+            alert(blocks[0].width);
+            alert(blocks[1].width);
+            alert(blocks[2].width);
             //}
 
             
@@ -114,42 +114,38 @@
                            obj1.y + obj1.height > obj2.y;
                 }
                 
-                else{
-                    //for (var i=0; i<blocks.length; i++){
-                        //obj2 = blocks[i];
-                        if ( obj1.y+grid > obj2.y &&
-                            obj1.y+grid < obj2.y+10 && 
-                            obj1.x+grid > obj2.x && 
-                            obj1.x < obj2.x+obj2.width ){  //top
-                                //alert("top");
-                                return 1;
-                        }
+                else if (obj2 == block) {
+                     if ( obj1.y+grid > obj2.y &&
+                          obj1.y+grid < obj2.y+10 && 
+                          obj1.x+grid > obj2.x && 
+                          obj1.x < obj2.x+obj2.width ){  //top
+                              //alert("top");
+                              return 1;
+                     }
 
-                        else if ( obj1.x > obj2.x+obj2.width-10 && 
-                                obj1.x < obj2.x+obj2.width && 
-                                obj1.y+grid > obj2.y && 
-                                obj1.y < obj2.y + obj2.height ){  //right
-                                    //alert("right");
-                                    return 2; 
-                        }
+                     else if ( obj1.x > obj2.x+obj2.width-10 && 
+                               obj1.x < obj2.x+obj2.width && 
+                               obj1.y+grid > obj2.y && 
+                               obj1.y < obj2.y + obj2.height ){  //right
+                                   //alert("right");
+                                   return 2; 
+                     }
 
-                        else if ( obj1.y > obj2.y+obj2.height-10 && 
-                                obj1.y < obj2.y+obj2.height &&     
-                                obj1.x+grid > obj2.x && 
-                                obj1.x < obj2.x+obj2.width ){  //bottom
-                                    //alert("bottom");
-                                    return 3;
-                        }
+                     else if ( obj1.y > obj2.y+obj2.height-10 && 
+                               obj1.y < obj2.y+obj2.height &&     
+                               obj1.x+grid > obj2.x && 
+                               obj1.x < obj2.x+obj2.width ){  //bottom
+                                   //alert("bottom");
+                                   return 3;
+                     }
 
-                        else if ( obj1.x+grid > obj2.x && 
-                                obj1.x+grid < obj2.x+10 && 
-                                obj1.y+grid > obj2.y && 
-                                obj1.y < obj2.y + obj2.height ){  //left
-                                    //alert("left");
-                                    return 4;
-                        }
-                        else{}
-                    //}
+                     else if ( obj1.x+grid > obj2.x && 
+                               obj1.x+grid < obj2.x+10 && 
+                               obj1.y+grid > obj2.y && 
+                               obj1.y < obj2.y + obj2.height ){  //left
+                                   //alert("left");
+                                   return 4;
+                     }
 
 
                 }
@@ -213,26 +209,24 @@
                     if (collides(ball, blocks[i]) == 1 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y - ball.width;
-                        blocks[i].numHits++;
+                        numHits++;
                     } 
-                    else if (collides(ball, blocks[i]) == 2 ) {
-                        ball.dx *= -1;
+                    else if (collides(ball, blocks[i]) == 2 ) {                         ///////////////////////////////////////  right-most block has collision detection, others don't
+                        ball.dx *= -1;                                                  //////////////////////////////////////   if last block destroyed, all others destroyed as well.
                         ball.x = blocks[i].x+blocks[i].width + ball.width;
-                        blocks[i].numHits++;
+                        numHits++;
                     } 
                     else if (collides(ball, blocks[i]) == 3 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y+blocks[i].height + ball.width;
-                        blocks[i].numHits++;
+                        numHits++;
                     } 
                     else if (collides(ball, blocks[i]) == 4 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x - ball.width;
-                        blocks[i].numHits++;
+                        numHits++;
                     } 
                 }
-
-                
 
 
                 // draw paddle
@@ -252,9 +246,22 @@
                 // context.fillRect(block.x, block.y, block.width, block.height);
 
                 for (var i=0; i<blocks.length; i++){
-                    var colorArray = ["red", "orange", "green", "blue", "purple"]
-                    if (blocks[i].numHits<5){
-                        context.fillStyle = colorArray[i];
+                    if (i==1){
+                    context.fillStyle = 'white'; }
+                    else if (i==2){
+                        context.fillStyle = 'red';
+                    }
+                    else{
+                        context.fillStyle = 'blue';
+                    }
+
+                    context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
+                }
+
+
+                for (var i=0; i<blocks.length; i++){
+                    if (numHits<5){
+                        context.fillStyle = 'white';
                         context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
                     }
                     else{
@@ -264,6 +271,7 @@
                         blocks[i].height=1;
                     }
                 }
+
 
             }
 
