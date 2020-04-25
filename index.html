@@ -57,31 +57,31 @@
             };
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // MUSIC
 
-            for (var i=0; i<5; i++){
-                min = Math.ceil(60);
+            function play() {
+                var audio = new Audio("music.wav");
+                audio.play();
+            }
+            play();
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            for (var i=0; i<4; i++){
+                min = Math.ceil(100);
                 max = Math.floor(160);
                 var x = Math.floor(Math.random() * (max - min+1) + min);
                 blockWidths.push(x);
             }
 
+            var fourBlockLength = 15;
+            for (var i=0; i<4; i++){
+                fourBlockLength+=blockWidths[i]+15;
+            }
+            blockWidths.push(canvas.width - fourBlockLength-15);
 
             var blocks = [];
             var h = grid;
-
-            // for (var i=0; i<5; i++){
-            //     const block = {
-            //         x: h,
-            //         y: grid*2,
-            //         width: Math.floor(Math.random() * (max - min+1) + min),
-            //         height: 70
-            //     }
-
-            //     h += block.width + grid;
-            //     block.push(block);
-
-            // }
-
 
             for (var i=0; i<5; i++){ 
                 var block = {
@@ -94,13 +94,7 @@
                 h += block.width + grid;
                 blocks.push(block);
             }
-            //for (var i=0; i<5; i++){ 
-            // alert(blocks[0].width);
-            // alert(blocks[1].width);
-            // alert(blocks[2].width);
-            //}
 
-            
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,13 +109,10 @@
                 }
                 
                 else{
-                    //for (var i=0; i<blocks.length; i++){
-                        //obj2 = blocks[i];
                         if ( obj1.y+grid > obj2.y &&
                             obj1.y+grid < obj2.y+10 && 
                             obj1.x+grid > obj2.x && 
                             obj1.x < obj2.x+obj2.width ){  //top
-                                //alert("top");
                                 return 1;
                         }
 
@@ -129,7 +120,6 @@
                                 obj1.x < obj2.x+obj2.width && 
                                 obj1.y+grid > obj2.y && 
                                 obj1.y < obj2.y + obj2.height ){  //right
-                                    //alert("right");
                                     return 2; 
                         }
 
@@ -137,7 +127,6 @@
                                 obj1.y < obj2.y+obj2.height &&     
                                 obj1.x+grid > obj2.x && 
                                 obj1.x < obj2.x+obj2.width ){  //bottom
-                                    //alert("bottom");
                                     return 3;
                         }
 
@@ -145,13 +134,9 @@
                                 obj1.x+grid < obj2.x+10 && 
                                 obj1.y+grid > obj2.y && 
                                 obj1.y < obj2.y + obj2.height ){  //left
-                                    //alert("left");
                                     return 4;
                         }
                         else{}
-                    //}
-
-
                 }
             }
 
@@ -248,9 +233,6 @@
                 context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
 
                 // draw block
-                // context.fillStyle = 'white';
-                // context.fillRect(block.x, block.y, block.width, block.height);
-
                 for (var i=0; i<blocks.length; i++){
                     var colorArray = ["red", "orange", "green", "blue", "purple"]
                     if (blocks[i].numHits<5){
