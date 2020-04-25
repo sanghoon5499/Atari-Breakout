@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+
+    body {
+        background: black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    </style>
+</head>
+<body>
+    <canvas width="750" height="585" id="game"></canvas>
+        <script>
+            const canvas = document.getElementById('game');
+            const context = canvas.getContext('2d');
+            const grid = 15; // called grid because each "pixel" is a grid unit, hence why code counts in grid units
+            const paddleHeight = grid; // 15
+            const maxPaddleY = 640;
+
+            var paddleSpeed = 10;
+            var ballSpeed = 5;
+
+
+            const paddle = {
+                // start in the middle of the game on the right side
+                x: canvas.width/2,
+                y: canvas.height-50,
+                width: grid*7,
+                height: paddleHeight,
+
+                // paddle velocity
+                dx: 0
+            }
+
+            const ball = {
+                // start in the middle of the game
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                width: grid,
+                height: grid,
+
+                // keep track of when need to reset the ball position
+                resetting: false,
+
+                // ball velocity (start going to the top-right corner)
+                dx: ballSpeed,
+                dy: -ballSpeed
+            };
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            for (var i=0; i<5; i++){
+                min = Math.ceil(60);
+                max = Math.floor(160);
+                var x = Math.floor(Math.random() * (max - min+1) + min);
+                blockWidths.push(x);
+            }
+
+
+            var blocks = [];
+            var h = grid;
+
+            // for (var i=0; i<5; i++){
+            //     const block = {
+            //         x: h,
+            //         y: grid*2,
+            //         width: Math.floor(Math.random() * (max - min+1) + min),
+            //         height: 70
+            //     }
+
+            //     h += block.width + grid;
+            //     block.push(block);
+
+            // }
+
+
+            for (var i=0; i<5; i++){ 
+                var block = {
+                    x: h,            // store const value objects in the array "blocks". Essentially, create an array of objects. 
+                    y: grid*2,
+                    width: Math.floor(Math.random() * (max - min+1) + min),
+                    height: 70,
+                    numHits: 0
+                }
+                h += block.width + grid;
+                blocks.push(block);
+            }
+            //for (var i=0; i<5; i++){ 
+            // alert(blocks[0].width);
+            // alert(blocks[1].width);
+            // alert(blocks[2].width);
+            //}
+
+            
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // check for collision between two objects using axis-aligned bounding box (AABB)
+            // see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+            function collides(obj1, obj2) {
+                if (obj2 == paddle) {
+                    return obj1.x < obj2.x + obj2.width && 
+                           obj1.x + obj1.width > obj2.x && 
+                           obj1.y < obj2.y + obj2.height && 
+                           obj1.y + obj1.height > obj2.y;
+                }
+                
+                else if (obj2 == block) {
+
+                     if ( obj1.y+grid > obj2.y &&
+                          obj1.y+grid < obj2.y+10 && 
+                          obj1.x+grid > obj2.x && 
+                          obj1.x < obj2.x+obj2.width ){  //top
+                              //alert("top");
+                              return 1;
+                     }
+
+                     else if ( obj1.x > obj2.x+obj2.width-10 && 
+                               obj1.x < obj2.x+obj2.width && 
+                               obj1.y+grid > obj2.y && 
+                               obj1.y < obj2.y + obj2.height ){  //right
+                                   //alert("right");
+                                   return 2; 
+                     }
+
+                     else if ( obj1.y > obj2.y+obj2.height-10 && 
+                               obj1.y < obj2.y+obj2.height &&     
+                               obj1.x+grid > obj2.x && 
+                               obj1.x < obj2.x+obj2.width ){  //bottom
+                                   //alert("bottom");
+                                   return 3;
+                     }
+
+                     else if ( obj1.x+grid > obj2.x && 
+                               obj1.x+grid < obj2.x+10 && 
+                               obj1.y+grid > obj2.y && 
+                               obj1.y < obj2.y + obj2.height ){  //left
+                                   //alert("left");
+                                   return 4;
+                     }
+
+
+                }
+            }
+
+            // game loop
+            function loop() {
+                requestAnimationFrame(loop);
+                context.clearRect(0,0,canvas.width,canvas.height);
+
+                // move paddles by their velocity
+                paddle.x += paddle.dx;
+
+                // prevent paddles from going through walls
+
+                if (paddle.x < 5) {
+                    paddle.x = 5;
+                }
+                else if (paddle.x > maxPaddleY) {
+                    paddle.x = maxPaddleY;
+                }
+
+                
+                // move ball by its velocity
+                ball.x += ball.dx;
+                ball.y += ball.dy;
+
+                // prevent ball from going through walls by changing its velocity
+                if (ball.y < grid) {  //top
+                    ball.y = grid;
+                    ball.dy *= -1;
+                }
+
+                else if (ball.x > canvas.width - grid) {  //left
+                    ball.x = canvas.width - grid;
+                    ball.dx *= -1;
+                }
+
+                else if (ball.x < grid) {  //right
+                    ball.x = grid;
+                    ball.dx *= -1;
+                }
+
+                else if (ball.y > canvas.height - grid) {  //bottom
+                    ball.y = canvas.height - grid;
+                    ball.x = canvas.width/2;
+                    ball.y = canvas.height/2;
+                }
+             
+                // check to see if ball collides with paddle. if they do change x velocity
+                if (collides(ball, paddle)) {
+                    ball.dy *= -1;
+
+                    // move ball above the paddle otherwise the collision will happen again
+                    // in the next frame
+                    ball.y = paddle.y - ball.width;
+                }
+
+                // check to see if ball collides with atari block. if they do change velocity based off of which side ball hit
+                for (var i=0; i<blocks.length; i++){
+                    if (collides(ball, blocks[i]) == 1 ) {
+                        ball.dy *= -1;
+                        ball.y = blocks[i].y - ball.width;
+                        blocks[i].numHits++;
+                    } 
+                    else if (collides(ball, blocks[i]) == 2 ) {
+                        ball.dx *= -1;
+                        ball.x = blocks[i].x+blocks[i].width + ball.width;
+                        blocks[i].numHits++;
+                    } 
+                    else if (collides(ball, blocks[i]) == 3 ) {
+                        ball.dy *= -1;
+                        ball.y = blocks[i].y+blocks[i].height + ball.width;
+                        blocks[i].numHits++;
+                    } 
+                    else if (collides(ball, blocks[i]) == 4 ) {
+                        ball.dx *= -1;
+                        ball.x = blocks[i].x - ball.width;
+                        blocks[i].numHits++;
+                    } 
+                    //alert(blocks[1].x)
+
+                }
+
+                
+
+
+                // draw paddle
+                context.fillStyle = 'white';
+                context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+
+                // draw ball
+                context.fillRect(ball.x, ball.y, ball.width, ball.height);
+
+                // draw walls
+                context.fillStyle = 'white';
+                context.fillRect(0, canvas.height - 15, canvas.width, canvas.height);
+                context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
+
+                // draw block
+                // context.fillStyle = 'white';
+                // context.fillRect(block.x, block.y, block.width, block.height);
+
+                for (var i=0; i<blocks.length; i++){
+                    var colorArray = ["red", "orange", "green", "blue", "purple"]
+                    if (blocks[i].numHits<5){
+                        context.fillStyle = colorArray[i];
+                        context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
+                    }
+                    else{
+                        blocks[i].x=-10;
+                        blocks[i].y=-10;
+                        blocks[i].width=1;
+                        blocks[i].height=1;
+                    }
+                }
+
+            }
+
+            // listen to keyboard events to move the paddles
+            document.addEventListener('keydown', function(e) {
+
+                // up arrow key
+                if (e.which === 39) {
+                    paddle.dx = paddleSpeed;
+                }
+                // down arrow key
+                else if (e.which === 37) {
+                    paddle.dx = -paddleSpeed;
+                }
+
+            });
+
+            // listen to keyboard events to stop the paddle if key is released
+            document.addEventListener('keyup', function(e) {
+                if (e.which === 39 || e.which === 37) {
+                    paddle.dx = 0;
+                }
+
+            });
+
+            // start the game
+            requestAnimationFrame(loop);
+        </script>
+    </body>
+</html>
