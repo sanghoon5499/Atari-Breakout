@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title></title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@500&display=swap" rel="stylesheet"> 
+    <title></title>
     <style>
     html, body {
         height: 100%;
@@ -13,6 +14,19 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: "Muli";
+    }
+    .button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
     }
     </style>
 </head>
@@ -31,6 +45,9 @@
             var blockWidths = []
             var ballReset = false;
             var resetOnce = 0;
+
+            var music = false;
+            var soundEffect = false;
 
             const paddle = {
                 // start in the middle of the game on the right side
@@ -58,18 +75,37 @@
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // MUSIC
 
-            function playMusic() {
-                var audio = new Audio("audio/music.wav");
-                audio.play();
+            function musicToggle(){
+                music = !music;
             }
-            function playHitSound() {
-                var audio = new Audio("audio/beep.ogg");
-                audio.play();
+            function soundEffectToggle(){
+                soundEffect = !soundEffect;
             }
-            function playBreakSound() {
-                var audio = new Audio("audio/plop.ogg");
-                audio.play();
-            }
+
+
+            // if (music == true){  //if on
+                function playMusic() {
+                    var audio = new Audio("audio/music.wav");
+                    audio.play();
+                }
+            // }
+            // else{
+            //     alert("music is off");
+            // }
+
+            // if (soundEffect == true){  //if on
+                function playHitSound() {
+                    var audio = new Audio("audio/beep.ogg");
+                    audio.play();
+                }
+                function playBreakSound() {
+                    var audio = new Audio("audio/plop.ogg");
+                    audio.play();
+                }
+            // }
+            // else{
+                // alert("sound effects are off");
+            // }
 
             //playMusic();
 
@@ -344,5 +380,20 @@
             // start the game
             requestAnimationFrame(loop);
         </script>
+        <div style="text-align: center; color: white; margin-left: 100px;">
+            <h1> Atari Breakout </h1>
+            <h3> by Sanghoon Choi </h3>
+            <br>
+            <h3> [Esc]: pause </h3>
+            <h3> [Space]: shoot ball </h3>
+            <br>
+            <br>
+            <h4> music and sound effect buttons are coming soon </h4>
+        </div>
+        <div style="margin-left: 50px; margin-top: 20px">
+            <button class="button" style="margin-left: 30px;" onclick="musicToggle()">Music</button>
+            <br><br>
+            <button class="button" onclick="soundEffectToggle()">Sound Effects</button>
+        </div>
     </body>
 </html>
