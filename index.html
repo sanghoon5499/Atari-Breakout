@@ -194,20 +194,30 @@
                     playBreakSound();
                 }
 
-                else if (ball.x > canvas.width - grid) {  //left
-                    ball.x = canvas.width - grid;
-                    ball.dx *= -1;
-                    playBreakSound();
+                else if (ball.x > canvas.width - grid) {  //right
+                    if (ballReset == false){
+                        ball.x = canvas.width - grid;
+                        ball.dx *= -1;
+                        playBreakSound();
+                    }
+                    else{
+                        ball.x = canvas.width - grid*2;
+                    }
                 }
 
-                else if (ball.x < grid) {  //right
-                    ball.x = grid;
-                    ball.dx *= -1;
-                    playBreakSound();
+                else if (ball.x < grid) {  //left
+                    if (ballReset == false){
+                        ball.x = grid;
+                        ball.dx *= -1;
+                        playBreakSound();
+                    }
+                    else{
+                        ball.x = grid;
+                    }
                 }
 
                 else if (ball.y > canvas.height - grid) {  //bottom
-                    ball.x = canvas.width/2;
+                    ball.x = paddle.x+paddle.width/2;
                     ball.y = canvas.height-65;
                     ballReset = true;
                 }
@@ -302,9 +312,15 @@
                     }
                 }
                 if (e.which === 32) {   // launch ball
-                    ball.dy=-ballSpeed;
-                    ball.dx=ballSpeed;
-                    ballReset = false;
+                    if (ballReset == true){
+                        ballSpeed = 5;
+                        ball.dy=-ballSpeed;
+                        ball.dx=ballSpeed;
+                        ballReset = false;
+                        resetOnce = 0;
+                    }
+                    else{}
+                    
                 }
                 if (e.which === 27) {
                     alert("- paused -");
@@ -322,8 +338,6 @@
                         resetOnce = 0;
                     }
                 }
-                
-
             });
 
 
