@@ -29,6 +29,8 @@
             var ballSpeed = 5;
             var numHits = 0;
             var blockWidths = []
+            var ballReset = false;
+            var resetOnce = 0;
 
             const paddle = {
                 // start in the middle of the game on the right side
@@ -48,9 +50,6 @@
                 width: grid,
                 height: grid,
 
-                // keep track of when need to reset the ball position
-                resetting: false,
-
                 // ball velocity (start going to the top-right corner)
                 dx: ballSpeed,
                 dy: -ballSpeed
@@ -59,14 +58,21 @@
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // MUSIC
 
-            function play() {
+            function playMusic() {
                 var audio = new Audio("audio/music.wav");
                 audio.play();
             }
-            play();
+            function playHitSound() {
+                var audio = new Audio("audio/beep.ogg");
+                audio.play();
+            }
+            function playBreakSound() {
+                var audio = new Audio("audio/plop.ogg");
+                audio.play();
+            }
 
-            // var audio = new Audio("audio/music.wav");
-            // audio.play();
+            //playMusic();
+
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -160,37 +166,56 @@
                     paddle.x = maxPaddleY;
                 }
 
+                if (ballReset == true){
+                    if (resetOnce == 0){
+                        ball.dx = 0;
+                        ball.dy = 0;
+                    }
+                    resetOnce = 1;
+                    
+                }
+
                 
                 // move ball by its velocity
-                ball.x += ball.dx;
-                ball.y += ball.dy;
+                if (ballReset == false){
+                    ball.x += ball.dx;
+                    ball.y += ball.dy;
+                }
+                else if (ballReset == true){
+                    ball.x += ball.dx;
+                    ball.y += 0;
+                }
+                //alert(ball.dx)
 
                 // prevent ball from going through walls by changing its velocity
                 if (ball.y < grid) {  //top
                     ball.y = grid;
                     ball.dy *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.x > canvas.width - grid) {  //left
                     ball.x = canvas.width - grid;
                     ball.dx *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.x < grid) {  //right
                     ball.x = grid;
                     ball.dx *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.y > canvas.height - grid) {  //bottom
-                    ball.y = canvas.height - grid;
                     ball.x = canvas.width/2;
-                    ball.y = canvas.height/2;
+                    ball.y = canvas.height-65;
+                    ballReset = true;
                 }
              
                 // check to see if ball collides with paddle. if they do change x velocity
                 if (collides(ball, paddle)) {
                     ball.dy *= -1;
-
+                    playHitSound();
                     // move ball above the paddle otherwise the collision will happen again
                     // in the next frame
                     ball.y = paddle.y - ball.width;
@@ -202,21 +227,25 @@
                         ball.dy *= -1;
                         ball.y = blocks[i].y - ball.width;
                         blocks[i].numHits++;
+                        playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 2 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x+blocks[i].width + ball.width;
                         blocks[i].numHits++;
+                        playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 3 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y+blocks[i].height + ball.width;
                         blocks[i].numHits++;
+                        playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 4 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x - ball.width;
                         blocks[i].numHits++;
+                        playHitSound();
                     } 
                 }
 
@@ -238,7 +267,7 @@
                 // draw block
                 for (var i=0; i<blocks.length; i++){
                     var colorArray = ["red", "orange", "green", "blue", "purple"]
-                    if (blocks[i].numHits<5){
+                    if (blocks[i].numHits<2){
                         context.fillStyle = colorArray[i];
                         context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
                     }
@@ -253,15 +282,32 @@
             }
 
             // listen to keyboard events to move the paddles
+            // see https://css-tricks.com/snippets/javascript/javascript-keycodes/ for keycodes
             document.addEventListener('keydown', function(e) {
 
-                // up arrow key
+                // right arrow key
                 if (e.which === 39) {
                     paddle.dx = paddleSpeed;
+                    if (ballReset == true){
+                        ballSpeed = paddleSpeed;
+                        ball.dx = ballSpeed;
+                    }
                 }
-                // down arrow key
+                // left arrow key
                 else if (e.which === 37) {
                     paddle.dx = -paddleSpeed;
+                    if (ballReset == true){
+                        ballSpeed = -paddleSpeed;
+                        ball.dx = ballSpeed;
+                    }
+                }
+                if (e.which === 32) {   // launch ball
+                    ball.dy=-ballSpeed;
+                    ball.dx=ballSpeed;
+                    ballReset = false;
+                }
+                if (e.which === 27) {
+                    alert("- paused -");
                 }
 
             });
@@ -270,9 +316,16 @@
             document.addEventListener('keyup', function(e) {
                 if (e.which === 39 || e.which === 37) {
                     paddle.dx = 0;
+                    if (ballReset == true){
+                        ballSpeed = 0;
+                        ball.dx = ballSpeed;
+                        resetOnce = 0;
+                    }
                 }
+                
 
             });
+
 
             // start the game
             requestAnimationFrame(loop);
