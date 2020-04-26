@@ -280,8 +280,50 @@
              
                 // check to see if ball collides with paddle. if they do change x velocity
                 if (collides(ball, paddle)) {
-                    ball.dy *= -1;
+                    //ball.dy *= -1;
+
+                    // //system to check where on the paddle ball hit to calculate angle of deflection
+                    var center = ball.x + ball.width/2;
+                    if (center < paddle.x+grid/2){  //below 1, but still colliding with edge
+                        ball.dy = -1.35;
+                        ball.dx = -8;
+                    }
+                    else if (center > paddle.x && center < paddle.x+grid){  //1
+                        ball.dy = -2.76;
+                        ball.dx = -6.51;
+                    }
+                    else if (center > paddle.x+grid && center < paddle.x+grid*2){  //2
+                        ball.dy = -5;
+                        ball.dx = -5;
+                    }
+                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*3){  //3
+                        ball.dy = -6.55;
+                        ball.dx = -2.66;
+                    }
+                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*4){  //4
+                        ball.dy = -7.07;
+                        ball.dx = 0;
+                    }
+                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*5){  //5
+                        ball.dy = -6.55;
+                        ball.dx = 2.66;
+                    }
+                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*6){  //6
+                        ball.dy = -5;
+                        ball.dx = 5;
+                    }
+                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*7){  //7
+                        ball.dy = -2.76;
+                        ball.dx = 6.51;
+                    }
+                    else{  //greater than 7, but still colliding with edge
+                        ball.dy = -1.35;
+                        ball.dx = 8;
+                    }
+
+
                     playHitSound();
+
                     // move ball above the paddle otherwise the collision will happen again
                     // in the next frame
                     ball.y = paddle.y - ball.width;
