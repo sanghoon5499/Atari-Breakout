@@ -1,5 +1,14 @@
 <!DOCTYPE html>
 <html>
+
+<!-- current bugs: 
+    - Spacebar triggers sound/effects buttons
+        - Solution: ?
+
+-->
+
+
+
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Muli:wght@500&display=swap" rel="stylesheet"> 
     <title></title>
@@ -16,18 +25,7 @@
         justify-content: center;
         font-family: "Muli";
     }
-    .button {
-        background-color: #4CAF50;
-        border: none;
-        color: white;
-        padding: 15px 32px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-    }
+
     </style>
 </head>
 <body>
@@ -47,7 +45,7 @@
             var resetOnce = 0;
 
             var music = false;
-            var soundEffect = false;
+            var soundEffect = true;
 
             const paddle = {
                 // start in the middle of the game on the right side
@@ -61,9 +59,9 @@
             }
 
             const ball = {
-                // start in the middle of the game
-                x: canvas.width / 2,
-                y: canvas.height / 2,
+                // start in the bottom area of the game
+                x: paddle.x+paddle.width/2,
+                y: paddle.y+grid,
                 width: grid,
                 height: grid,
 
@@ -77,38 +75,47 @@
 
             function musicToggle(){
                 music = !music;
+                playMusic();
             }
             function soundEffectToggle(){
                 soundEffect = !soundEffect;
+                playHitSound();
+                playBreakSound();
             }
 
 
-            // if (music == true){  //if on
-                function playMusic() {
-                    var audio = new Audio("audio/music.wav");
+            function playMusic() {
+                var audio = document.getElementById("musicTwo");  //line 428
+                if (music == true){
                     audio.play();
+                    audio.loop = true;
                 }
-            // }
-            // else{
-            //     alert("music is off");
-            // }
-
-            // if (soundEffect == true){  //if on
-                function playHitSound() {
-                    var audio = new Audio("audio/beep.ogg");
-                    audio.play();
+                else if (music == false){
+                    //var audio = new Audio("");
+                    audio.pause();
+                    audio.currentTime = 0;
                 }
-                function playBreakSound() {
-                    var audio = new Audio("audio/plop.ogg");
-                    audio.play();
+            }
+
+
+            function playHitSound() {
+            var audioFXOne = document.getElementById("soundFXOne");
+                if (soundEffect == true){     
+                    audioFXOne.play();
                 }
-            // }
-            // else{
-                // alert("sound effects are off");
-            // }
-
-            //playMusic();
-
+                else{
+                    audioFXOne.pause();
+                }
+            }
+            function playBreakSound() {
+            var audioFXTwo = document.getElementById("soundFXTwo");
+                if (soundEffect == true){
+                    audioFXTwo.play();
+                }
+                else{
+                    audioFXTwo.pause();
+                }
+            }
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,31 +238,29 @@
                 }
 
                 else if (ball.x > canvas.width - grid) {  //right
-                    if (ballReset == false){
-                        ball.x = canvas.width - grid;
-                        ball.dx *= -1;
-                        playBreakSound();
-                    }
-                    else{
-                        ball.x = canvas.width - grid*2;
-                    }
+                    ball.x = canvas.width - grid;
+                    ball.dx *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.x < grid) {  //left
-                    if (ballReset == false){
-                        ball.x = grid;
-                        ball.dx *= -1;
-                        playBreakSound();
-                    }
-                    else{
-                        ball.x = grid;
-                    }
+                    ball.x = grid;
+                    ball.dx *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.y > canvas.height - grid) {  //bottom
                     ball.x = paddle.x+paddle.width/2;
                     ball.y = canvas.height-65;
                     ballReset = true;
+                }
+
+                //prevent ball from going past paddle boundary
+                if (ballReset == true && ball.x < paddle.x+grid*3){
+                    ball.x = paddle.x+grid*3;
+                }
+                else if (ballReset == true && ball.x+grid > paddle.x+paddle.width-grid*4 ){
+                    ball.x = paddle.x+paddle.width-grid*4;
                 }
              
                 // check to see if ball collides with paddle. if they do change x velocity
@@ -388,12 +393,41 @@
             <h3> [Space]: shoot ball </h3>
             <br>
             <br>
-            <h4> music and sound effect buttons are coming soon </h4>
+            <h4> spacebar will activate buttons</h4>
+            <h4> if they've been clicked on for some reason </h4>
         </div>
+
+        
+
+        <style>
+            .button{
+                background-color: black;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                border: 2px solid white;
+                font-family: "Muli";
+                cursor: pointer;
+            }
+        </style>
+
         <div style="margin-left: 50px; margin-top: 20px">
             <button class="button" style="margin-left: 30px;" onclick="musicToggle()">Music</button>
             <br><br>
             <button class="button" onclick="soundEffectToggle()">Sound Effects</button>
         </div>
+
+
+        <!-- music elements for line 87 -->
+        <audio id="musicOne" src="audio/music.wav"></audio>
+        <audio id="musicTwo" src="audio/select.wav"></audio>
+        <audio id="soundFXOne" src="audio/beep.ogg"></audio>
+        <audio id="soundFXTwo" src="audio/plop.ogg"></audio>
     </body>
 </html>
+
+
+<!-- Inspired by GitHub user straker's Basic Pong HTML Game. See https://gist.github.com/straker/81b59eecf70da93af396f963596dfdc5 -->

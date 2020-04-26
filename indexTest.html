@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 <html>
+
+<!-- current bugs: 
+    - Spacebar triggers sound/effects buttons
+        - Solution: ?
+
+-->
+
+
+
 <head>
-  <title></title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@500&display=swap" rel="stylesheet"> 
+    <title></title>
     <style>
     html, body {
         height: 100%;
@@ -13,7 +23,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        font-family: "Muli";
     }
+
     </style>
 </head>
 <body>
@@ -29,6 +41,11 @@
             var ballSpeed = 5;
             var numHits = 0;
             var blockWidths = []
+            var ballReset = false;
+            var resetOnce = 0;
+
+            var music = false;
+            var soundEffect = true;
 
             const paddle = {
                 // start in the middle of the game on the right side
@@ -42,14 +59,11 @@
             }
 
             const ball = {
-                // start in the middle of the game
-                x: canvas.width / 2,
-                y: canvas.height / 2,
+                // start in the bottom area of the game
+                x: paddle.x+paddle.width/2,
+                y: paddle.y+grid,
                 width: grid,
                 height: grid,
-
-                // keep track of when need to reset the ball position
-                resetting: false,
 
                 // ball velocity (start going to the top-right corner)
                 dx: ballSpeed,
@@ -57,50 +71,82 @@
             };
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // MUSIC
 
-            for (var i=0; i<5; i++){
-                min = Math.ceil(100);
-                max = Math.floor(200);
-                var x = Math.floor(Math.random() * (max - min+1) + min);
-                blockWidths.push(x);
-                //alert(blockWidths);
+            function musicToggle(){
+                music = !music;
+                playMusic();
+            }
+            function soundEffectToggle(){
+                soundEffect = !soundEffect;
+                playHitSound();
+                playBreakSound();
             }
 
 
+            function playMusic() {
+                var audio = document.getElementById("musicTwo");  //line 428
+                if (music == true){
+                    audio.play();
+                    audio.loop = true;
+                }
+                else if (music == false){
+                    //var audio = new Audio("");
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            }
+
+
+            function playHitSound() {
+            var audioFXOne = document.getElementById("soundFXOne");
+                if (soundEffect == true){     
+                    audioFXOne.play();
+                }
+                else{
+                    audioFXOne.pause();
+                }
+            }
+            function playBreakSound() {
+            var audioFXTwo = document.getElementById("soundFXTwo");
+                if (soundEffect == true){
+                    audioFXTwo.play();
+                }
+                else{
+                    audioFXTwo.pause();
+                }
+            }
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            for (var i=0; i<4; i++){
+                min = Math.ceil(100);
+                max = Math.floor(160);
+                var x = Math.floor(Math.random() * (max - min+1) + min);
+                blockWidths.push(x);
+            }
+
+            var fourBlockLength = 15;
+            for (var i=0; i<4; i++){
+                fourBlockLength+=blockWidths[i]+15;
+            }
+            blockWidths.push(canvas.width - fourBlockLength-15);
+
             var blocks = [];
-             var h = grid;
-
-            // for (var i=0; i<5; i++){
-            //     const block = {
-            //         x: h,
-            //         y: grid*2,
-            //         width: Math.floor(Math.random() * (max - min+1) + min),
-            //         height: 70
-            //     }
-
-            //     h += block.width + grid;
-            //     block.push(block);
-
-            // }
-
+            var h = grid;
 
             for (var i=0; i<5; i++){ 
                 var block = {
                     x: h,            // store const value objects in the array "blocks". Essentially, create an array of objects. 
                     y: grid*2,
-                    width: Math.floor(Math.random() * (max - min+1) + min),
-                    height: 70
+                    width: blockWidths[i],
+                    height: 70,
+                    numHits: 0
                 }
                 h += block.width + grid;
-                blocks.push(block);
+                blocks.push(block); 
             }
-            //for (var i=0; i<5; i++){ 
-            alert(blocks[0].width);
-            alert(blocks[1].width);
-            alert(blocks[2].width);
-            //}
 
-            
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -114,40 +160,35 @@
                            obj1.y + obj1.height > obj2.y;
                 }
                 
-                else if (obj2 == block) {
-                     if ( obj1.y+grid > obj2.y &&
-                          obj1.y+grid < obj2.y+10 && 
-                          obj1.x+grid > obj2.x && 
-                          obj1.x < obj2.x+obj2.width ){  //top
-                              //alert("top");
-                              return 1;
-                     }
+                else{
+                        if ( obj1.y+grid > obj2.y &&
+                            obj1.y+grid < obj2.y+10 && 
+                            obj1.x+grid > obj2.x && 
+                            obj1.x < obj2.x+obj2.width ){  //top
+                                return 1;
+                        }
 
-                     else if ( obj1.x > obj2.x+obj2.width-10 && 
-                               obj1.x < obj2.x+obj2.width && 
-                               obj1.y+grid > obj2.y && 
-                               obj1.y < obj2.y + obj2.height ){  //right
-                                   //alert("right");
-                                   return 2; 
-                     }
+                        else if ( obj1.x > obj2.x+obj2.width-10 && 
+                                obj1.x < obj2.x+obj2.width && 
+                                obj1.y+grid > obj2.y && 
+                                obj1.y < obj2.y + obj2.height ){  //right
+                                    return 2; 
+                        }
 
-                     else if ( obj1.y > obj2.y+obj2.height-10 && 
-                               obj1.y < obj2.y+obj2.height &&     
-                               obj1.x+grid > obj2.x && 
-                               obj1.x < obj2.x+obj2.width ){  //bottom
-                                   //alert("bottom");
-                                   return 3;
-                     }
+                        else if ( obj1.y > obj2.y+obj2.height-10 && 
+                                obj1.y < obj2.y+obj2.height &&     
+                                obj1.x+grid > obj2.x && 
+                                obj1.x < obj2.x+obj2.width ){  //bottom
+                                    return 3;
+                        }
 
-                     else if ( obj1.x+grid > obj2.x && 
-                               obj1.x+grid < obj2.x+10 && 
-                               obj1.y+grid > obj2.y && 
-                               obj1.y < obj2.y + obj2.height ){  //left
-                                   //alert("left");
-                                   return 4;
-                     }
-
-
+                        else if ( obj1.x+grid > obj2.x && 
+                                obj1.x+grid < obj2.x+10 && 
+                                obj1.y+grid > obj2.y && 
+                                obj1.y < obj2.y + obj2.height ){  //left
+                                    return 4;
+                        }
+                        else{}
                 }
             }
 
@@ -168,37 +209,64 @@
                     paddle.x = maxPaddleY;
                 }
 
+                if (ballReset == true){
+                    if (resetOnce == 0){
+                        ball.dx = 0;
+                        ball.dy = 0;
+                    }
+                    resetOnce = 1;
+                    
+                }
+
                 
                 // move ball by its velocity
-                ball.x += ball.dx;
-                ball.y += ball.dy;
+                if (ballReset == false){
+                    ball.x += ball.dx;
+                    ball.y += ball.dy;
+                }
+                else if (ballReset == true){
+                    ball.x += ball.dx;
+                    ball.y += 0;
+                }
+                //alert(ball.dx)
 
                 // prevent ball from going through walls by changing its velocity
                 if (ball.y < grid) {  //top
                     ball.y = grid;
                     ball.dy *= -1;
+                    playBreakSound();
                 }
 
-                else if (ball.x > canvas.width - grid) {  //left
+                else if (ball.x > canvas.width - grid) {  //right
                     ball.x = canvas.width - grid;
                     ball.dx *= -1;
+                    playBreakSound();
                 }
 
-                else if (ball.x < grid) {  //right
+                else if (ball.x < grid) {  //left
                     ball.x = grid;
                     ball.dx *= -1;
+                    playBreakSound();
                 }
 
                 else if (ball.y > canvas.height - grid) {  //bottom
-                    ball.y = canvas.height - grid;
-                    ball.x = canvas.width/2;
-                    ball.y = canvas.height/2;
+                    ball.x = paddle.x+paddle.width/2;
+                    ball.y = canvas.height-65;
+                    ballReset = true;
+                }
+
+                //prevent ball from going past paddle boundary
+                if (ballReset == true && ball.x < paddle.x+grid*3){
+                    ball.x = paddle.x+grid*3;
+                }
+                else if (ballReset == true && ball.x+grid > paddle.x+paddle.width-grid*4 ){
+                    ball.x = paddle.x+paddle.width-grid*4;
                 }
              
                 // check to see if ball collides with paddle. if they do change x velocity
                 if (collides(ball, paddle)) {
                     ball.dy *= -1;
-
+                    playHitSound();
                     // move ball above the paddle otherwise the collision will happen again
                     // in the next frame
                     ball.y = paddle.y - ball.width;
@@ -209,24 +277,30 @@
                     if (collides(ball, blocks[i]) == 1 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y - ball.width;
-                        numHits++;
+                        blocks[i].numHits++;
+                        playHitSound();
                     } 
-                    else if (collides(ball, blocks[i]) == 2 ) {                         ///////////////////////////////////////  right-most block has collision detection, others don't
-                        ball.dx *= -1;                                                  //////////////////////////////////////   if last block destroyed, all others destroyed as well.
+                    else if (collides(ball, blocks[i]) == 2 ) {
+                        ball.dx *= -1;
                         ball.x = blocks[i].x+blocks[i].width + ball.width;
-                        numHits++;
+                        blocks[i].numHits++;
+                        playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 3 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y+blocks[i].height + ball.width;
-                        numHits++;
+                        blocks[i].numHits++;
+                        playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 4 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x - ball.width;
-                        numHits++;
+                        blocks[i].numHits++;
+                        playHitSound();
                     } 
                 }
+
+                
 
 
                 // draw paddle
@@ -242,26 +316,10 @@
                 context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
 
                 // draw block
-                // context.fillStyle = 'white';
-                // context.fillRect(block.x, block.y, block.width, block.height);
-
                 for (var i=0; i<blocks.length; i++){
-                    if (i==1){
-                    context.fillStyle = 'white'; }
-                    else if (i==2){
-                        context.fillStyle = 'red';
-                    }
-                    else{
-                        context.fillStyle = 'blue';
-                    }
-
-                    context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
-                }
-
-
-                for (var i=0; i<blocks.length; i++){
-                    if (numHits<5){
-                        context.fillStyle = 'white';
+                    var colorArray = ["red", "orange", "green", "blue", "purple"]
+                    if (blocks[i].numHits<2){
+                        context.fillStyle = colorArray[i];
                         context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
                     }
                     else{
@@ -272,19 +330,41 @@
                     }
                 }
 
-
             }
 
             // listen to keyboard events to move the paddles
+            // see https://css-tricks.com/snippets/javascript/javascript-keycodes/ for keycodes
             document.addEventListener('keydown', function(e) {
 
-                // up arrow key
+                // right arrow key
                 if (e.which === 39) {
                     paddle.dx = paddleSpeed;
+                    if (ballReset == true){
+                        ballSpeed = paddleSpeed;
+                        ball.dx = ballSpeed;
+                    }
                 }
-                // down arrow key
+                // left arrow key
                 else if (e.which === 37) {
                     paddle.dx = -paddleSpeed;
+                    if (ballReset == true){
+                        ballSpeed = -paddleSpeed;
+                        ball.dx = ballSpeed;
+                    }
+                }
+                if (e.which === 32) {   // launch ball
+                    if (ballReset == true){
+                        ballSpeed = 5;
+                        ball.dy=-ballSpeed;
+                        ball.dx=ballSpeed;
+                        ballReset = false;
+                        resetOnce = 0;
+                    }
+                    else{}
+                    
+                }
+                if (e.which === 27) {
+                    alert("- paused -");
                 }
 
             });
@@ -293,12 +373,61 @@
             document.addEventListener('keyup', function(e) {
                 if (e.which === 39 || e.which === 37) {
                     paddle.dx = 0;
+                    if (ballReset == true){
+                        ballSpeed = 0;
+                        ball.dx = ballSpeed;
+                        resetOnce = 0;
+                    }
                 }
-
             });
+
 
             // start the game
             requestAnimationFrame(loop);
         </script>
+        <div style="text-align: center; color: white; margin-left: 100px;">
+            <h1> Atari Breakout </h1>
+            <h3> by Sanghoon Choi </h3>
+            <br>
+            <h3> [Esc]: pause </h3>
+            <h3> [Space]: shoot ball </h3>
+            <br>
+            <br>
+            <h4> spacebar will activate buttons</h4>
+            <h4> if they've been clicked on for some reason </h4>
+        </div>
+
+        
+
+        <style>
+            .button{
+                background-color: black;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                border: 2px solid white;
+                font-family: "Muli";
+                cursor: pointer;
+            }
+        </style>
+
+        <div style="margin-left: 50px; margin-top: 20px">
+            <button class="button" style="margin-left: 30px;" onclick="musicToggle()">Music</button>
+            <br><br>
+            <button class="button" onclick="soundEffectToggle()">Sound Effects</button>
+        </div>
+
+
+        <!-- music elements for line 87 -->
+        <audio id="musicOne" src="audio/music.wav"></audio>
+        <audio id="musicTwo" src="audio/select.wav"></audio>
+        <audio id="soundFXOne" src="audio/beep.ogg"></audio>
+        <audio id="soundFXTwo" src="audio/plop.ogg"></audio>
     </body>
 </html>
+
+
+<!-- Inspired by GitHub user straker's Basic Pong HTML Game. See https://gist.github.com/straker/81b59eecf70da93af396f963596dfdc5 -->
