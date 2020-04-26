@@ -48,7 +48,7 @@
             var soundEffect = true;
 
             const paddle = {
-                // start in the middle of the game on the right side
+                // start in the middle of the game in middle
                 x: canvas.width/2,
                 y: canvas.height-50,
                 width: grid*7,
@@ -59,7 +59,7 @@
             }
 
             const ball = {
-                // start in the bottom area of the game
+                // start on top of paddle
                 x: paddle.x+paddle.width/2,
                 y: paddle.y+grid,
                 width: grid,
@@ -85,7 +85,7 @@
 
 
             function playMusic() {
-                var audio = document.getElementById("musicTwo");  //line 428
+                var audio = document.getElementById("musicTwo");  // reference line 428
                 if (music == true){
                     audio.play();
                     audio.loop = true;
@@ -99,25 +99,26 @@
 
 
             function playHitSound() {
-            var audioFXOne = document.getElementById("soundFXOne");
-                if (soundEffect == true){     
-                    audioFXOne.play();
-                }
-                else{
-                    audioFXOne.pause();
-                }
+                var audioFXOne = document.getElementById("soundFXOne");  // reference line 429
+                    if (soundEffect == true){     
+                        audioFXOne.play();
+                    }
+                    else{
+                        audioFXOne.pause();
+                    }
             }
             function playBreakSound() {
-            var audioFXTwo = document.getElementById("soundFXTwo");
-                if (soundEffect == true){
-                    audioFXTwo.play();
-                }
-                else{
-                    audioFXTwo.pause();
-                }
+                var audioFXTwo = document.getElementById("soundFXTwo");  // reference line 430
+                    if (soundEffect == true){
+                        audioFXTwo.play();
+                    }
+                    else{
+                        audioFXTwo.pause();
+                    }
             }
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Create block widths
 
             for (var i=0; i<4; i++){
                 min = Math.ceil(100);
@@ -126,19 +127,35 @@
                 blockWidths.push(x);
             }
 
-            var fourBlockLength = 15;
-            for (var i=0; i<4; i++){
-                fourBlockLength+=blockWidths[i]+15;
+            //make sure last block always stretches to the edge of canvas
+            function createBlockWidths(){
+                var fourBlockLength = 15;
+                for (var i=0; i<4; i++){
+                    fourBlockLength+=blockWidths[i]+15;
+                }
+                blockWidths.push(canvas.width - fourBlockLength-15);                
             }
-            blockWidths.push(canvas.width - fourBlockLength-15);
 
+            createBlockWidths();
             var blocks = [];
             var h = grid;
-
             for (var i=0; i<5; i++){ 
                 var block = {
-                    x: h,            // store const value objects in the array "blocks". Essentially, create an array of objects. 
+                    x: h,            
                     y: grid*2,
+                    width: blockWidths[i],
+                    height: 70,
+                    numHits: 0
+                }
+                h += block.width + grid;
+                blocks.push(block); 
+            }
+            createBlockWidths();
+            h = grid;
+            for (var i=0; i<5; i++){ 
+                var block = {
+                    x: h,            
+                    y: 70+grid*3,
                     width: blockWidths[i],
                     height: 70,
                     numHits: 0
@@ -160,7 +177,8 @@
                            obj1.y + obj1.height > obj2.y;
                 }
                 
-                else{
+                //collision with atari blocks
+                else{  
                         if ( obj1.y+grid > obj2.y &&
                             obj1.y+grid < obj2.y+10 && 
                             obj1.x+grid > obj2.x && 
@@ -201,10 +219,9 @@
                 paddle.x += paddle.dx;
 
                 // prevent paddles from going through walls
-
                 if (paddle.x < 5) {
                     paddle.x = 5;
-                }
+                } 
                 else if (paddle.x > maxPaddleY) {
                     paddle.x = maxPaddleY;
                 }
@@ -215,9 +232,7 @@
                         ball.dy = 0;
                     }
                     resetOnce = 1;
-                    
                 }
-
                 
                 // move ball by its velocity
                 if (ballReset == false){
