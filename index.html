@@ -40,7 +40,6 @@
             var paddleSpeed = 10;
             var ballSpeed = 5;
             var numHits = 0;
-            var blockWidths = []
             var ballReset = false;
             var resetOnce = 0; 
 
@@ -89,6 +88,7 @@
                 if (music == true){
                     audio.play();
                     audio.loop = true;
+                    audio.volume = 0.1;
                 }
                 else if (music == false){
                     //var audio = new Audio("");
@@ -119,12 +119,27 @@
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Create block widths
+            var blockWidths = [];
+            var blockWidths2 = [];
+            var blockWidths3 = [];
 
             for (var i=0; i<4; i++){
                 min = Math.ceil(100);
                 max = Math.floor(160);
                 var x = Math.floor(Math.random() * (max - min+1) + min);
                 blockWidths.push(x);
+            }
+            for (var i=0; i<4; i++){
+                min = Math.ceil(90);
+                max = Math.floor(160);
+                var x = Math.floor(Math.random() * (max - min+1) + min);
+                blockWidths2.push(x);
+            }
+            for (var i=0; i<4; i++){
+                min = Math.ceil(90);
+                max = Math.floor(160);
+                var x = Math.floor(Math.random() * (max - min+1) + min);
+                blockWidths3.push(x);
             }
 
             //make sure last block always stretches to the edge of canvas
@@ -135,9 +150,24 @@
                 }
                 blockWidths.push(canvas.width - fourBlockLength-15);                
             }
+            function createBlockWidths2(){
+                var fourBlockLength = 15;
+                for (var i=0; i<4; i++){
+                    fourBlockLength+=blockWidths2[i]+15;
+                }
+                blockWidths2.push(canvas.width - fourBlockLength-15);                
+            }
+            function createBlockWidths3(){
+                var fourBlockLength = 15;
+                for (var i=0; i<4; i++){
+                    fourBlockLength+=blockWidths3[i]+15;
+                }
+                blockWidths3.push(canvas.width - fourBlockLength-15);                
+            }
+
+            var blocks = [];
 
             createBlockWidths();
-            var blocks = [];
             var h = grid;
             for (var i=0; i<5; i++){ 
                 var block = {
@@ -150,20 +180,32 @@
                 h += block.width + grid;
                 blocks.push(block); 
             }
-            createBlockWidths();
+            createBlockWidths2();
             h = grid;
             for (var i=0; i<5; i++){ 
                 var block = {
                     x: h,            
                     y: 70+grid*3,
-                    width: blockWidths[i],
+                    width: blockWidths2[i],
                     height: 70,
                     numHits: 0
                 }
                 h += block.width + grid;
                 blocks.push(block); 
             }
-
+            createBlockWidths3();
+            h = grid;
+            for (var i=0; i<5; i++){ 
+                var block = {
+                    x: h,            
+                    y: 140+grid*4,
+                    width: blockWidths3[i],
+                    height: 70,
+                    numHits: 0
+                }
+                h += block.width + grid;
+                blocks.push(block); 
+            }
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -373,8 +415,14 @@
                 context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
 
                 // draw block
-                for (var i=0; i<blocks.length; i++){
-                    var colorArray = ["red", "orange", "green", "blue", "purple"]
+                
+                for (var i=0; i<blocks.length; i++){    
+                    var colorArray = ["#fe4a49", "#2ab7ca", "#fed766", "#005b96", "#851e3e", 
+                                      "#fe8a71", "#35a79c", "#ee4035", "#f37736", "#7bc043",  
+                                      "#0392cf", "#ffcc5c", "#ff6f69", "#ff5588", "#3d1e6d", 
+                                      "#c68642", "#64a1f4", "#01FF70", "#39CCCC", "#7FDBFF",  
+                                      "#0392cf", "#ffeead", "#ff6f69", "#ffcc5c", "#88d8b0", 
+                                      "#d11141", "#00b159", "#00aedb", "#f37735", "#ffc425"];
                     if (blocks[i].numHits<2){
                         context.fillStyle = colorArray[i];
                         context.fillRect(blocks[i].x, blocks[i].y, blocks[i].width, blocks[i].height);
