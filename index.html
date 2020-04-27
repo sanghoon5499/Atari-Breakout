@@ -43,8 +43,14 @@
             var ballReset = false;
             var resetOnce = 0; 
 
+            var numTimesReset = 0;
+            var totalReset = false;
+            var lose = false;
+
             var music = false;
             var soundEffect = true;
+
+            var blocksRemoved = 0;
 
             const paddle = {
                 // start in the middle of the game in middle
@@ -252,123 +258,173 @@
                 }
             }
 
+            // display lives
+            function lives(){
+                if (numTimesReset == 1){
+                    document.getElementById("lifeOne").style.backgroundColor = "black";
+                }
+                else if (numTimesReset == 2){
+                    document.getElementById("lifeTwo").style.backgroundColor = "black";
+                }
+                else if (numTimesReset == 3){
+                    document.getElementById("lifeThree").style.backgroundColor = "black";
+                }
+                else{
+                    alert("Err.277");
+                }
+
+            }
+
+            function loseScreen(){
+                document.getElementById("message").innerHTML = "You Lose";
+                document.getElementById("message").style.color = "white"; 
+                document.getElementById("message").style.position = "absolute"; 
+                document.getElementById("message").style.fontSize = "60px"; 
+                lose = true;
+            }
+            function winScreen(){
+                document.getElementById("message").innerHTML = "You Win!";
+                document.getElementById("message").style.color = "white"; 
+                document.getElementById("message").style.position = "absolute"; 
+                document.getElementById("message").style.fontSize = "60px"; 
+                lose = true;
+            }
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             // game loop
             function loop() {
                 requestAnimationFrame(loop);
                 context.clearRect(0,0,canvas.width,canvas.height);
 
-                // move paddles by their velocity
-                paddle.x += paddle.dx;
-
-                // prevent paddles from going through walls
-                if (paddle.x < 5) {
-                    paddle.x = 5;
-                } 
-                else if (paddle.x > maxPaddleY) {
-                    paddle.x = maxPaddleY;
+                // check is user lost
+                if (numTimesReset >= 3){
+                    loseScreen();
+                    totalReset = true;
+                    numTimesReset = 0;
+                }
+                if (blocksRemoved >= 30){
+                    winScreen();
+                    totalReset = true;
                 }
 
-                if (ballReset == true){
-                    if (resetOnce == 0){
-                        ball.dx = 0;
-                        ball.dy = 0;
+                if (totalReset == false){
+                    // move paddles by their velocity
+                    paddle.x += paddle.dx;
+
+                    // prevent paddles from going through walls
+                    if (paddle.x < 5) {
+                        paddle.x = 5;
+                    } 
+                    else if (paddle.x > maxPaddleY) {
+                        paddle.x = maxPaddleY;
                     }
-                    resetOnce = 1;
-                }
+
+                    if (ballReset == true){
+                        if (resetOnce == 0){
+                            ball.dx = 0;
+                            ball.dy = 0;
+                        }
+                        resetOnce = 1;
+                    }
+                    
+                    // move ball by its velocity
+                    if (ballReset == false){
+                        ball.x += ball.dx;
+                        ball.y += ball.dy;
+                    }
+                    else if (ballReset == true){
+                        ball.x += ball.dx; 
+                        ball.y += 0;
+                    }
+                    //alert(ball.dx)
+
+                    // prevent ball from going through walls by changing its velocity
+                    if (ball.y < grid) {  //top
+                        ball.y = grid;
+                        ball.dy *= -1;
+                        playBreakSound();
+                    }
+
+                    else if (ball.x > canvas.width - grid) {  //right
+                        ball.x = canvas.width - grid;
+                        ball.dx *= -1;
+                        playBreakSound();
+                    }
+
+                    else if (ball.x < grid) {  //left
+                        ball.x = grid;
+                        ball.dx *= -1;
+                        playBreakSound();
+                    }
+
+                    else if (ball.y > canvas.height - grid) {  //bottom
+                        ball.x = paddle.x+paddle.width/2;
+                        ball.y = canvas.height-65;
+                        ballReset = true;
+                        numTimesReset++;
+                        lives();
+                    }
+
+                    //prevent ball from going past paddle boundary
+                    if (ballReset == true && ball.x < paddle.x+grid*3){
+                        ball.x = paddle.x+grid*3;
+                    }
+                    else if (ballReset == true && ball.x+grid > paddle.x+paddle.width-grid*4 ){
+                        ball.x = paddle.x+paddle.width-grid*4;
+                    }
                 
-                // move ball by its velocity
-                if (ballReset == false){
-                    ball.x += ball.dx;
-                    ball.y += ball.dy;
-                }
-                else if (ballReset == true){
-                    ball.x += ball.dx;
-                    ball.y += 0;
-                }
-                //alert(ball.dx)
+                    // check to see if ball collides with paddle. if they do change x velocity
+                    if (collides(ball, paddle)) {
+                        //ball.dy *= -1;
 
-                // prevent ball from going through walls by changing its velocity
-                if (ball.y < grid) {  //top
-                    ball.y = grid;
-                    ball.dy *= -1;
-                    playBreakSound();
-                }
-
-                else if (ball.x > canvas.width - grid) {  //right
-                    ball.x = canvas.width - grid;
-                    ball.dx *= -1;
-                    playBreakSound();
-                }
-
-                else if (ball.x < grid) {  //left
-                    ball.x = grid;
-                    ball.dx *= -1;
-                    playBreakSound();
-                }
-
-                else if (ball.y > canvas.height - grid) {  //bottom
-                    ball.x = paddle.x+paddle.width/2;
-                    ball.y = canvas.height-65;
-                    ballReset = true;
-                }
-
-                //prevent ball from going past paddle boundary
-                if (ballReset == true && ball.x < paddle.x+grid*3){
-                    ball.x = paddle.x+grid*3;
-                }
-                else if (ballReset == true && ball.x+grid > paddle.x+paddle.width-grid*4 ){
-                    ball.x = paddle.x+paddle.width-grid*4;
-                }
-             
-                // check to see if ball collides with paddle. if they do change x velocity
-                if (collides(ball, paddle)) {
-                    //ball.dy *= -1;
-
-                    // //system to check where on the paddle ball hit to calculate angle of deflection
-                    var center = ball.x + ball.width/2;
-                    if (center < paddle.x+grid/2){  //below 1, but still colliding with edge
-                        ball.dy = -1.35;
-                        ball.dx = -8;
-                    }
-                    else if (center > paddle.x && center < paddle.x+grid){  //1
-                        ball.dy = -2.76;
-                        ball.dx = -6.51;
-                    }
-                    else if (center > paddle.x+grid && center < paddle.x+grid*2){  //2
-                        ball.dy = -5;
-                        ball.dx = -5;
-                    }
-                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*3){  //3
-                        ball.dy = -6.55;
-                        ball.dx = -2.66;
-                    }
-                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*4){  //4
-                        ball.dy = -7.07;
-                        ball.dx = 0;
-                    }
-                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*5){  //5
-                        ball.dy = -6.55;
-                        ball.dx = 2.66;
-                    }
-                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*6){  //6
-                        ball.dy = -5;
-                        ball.dx = 5;
-                    }
-                    else if (center > paddle.x+grid*2 && center < paddle.x+grid*7){  //7
-                        ball.dy = -2.76;
-                        ball.dx = 6.51;
-                    }
-                    else{  //greater than 7, but still colliding with edge
-                        ball.dy = -1.35;
-                        ball.dx = 8;
-                    }
+                        // //system to check where on the paddle ball hit to calculate angle of deflection
+                        var center = ball.x + ball.width/2;
+                        if (center < paddle.x+grid/2){  //below 1, but still colliding with edge
+                            ball.dy = -1.35;
+                            ball.dx = -8;
+                        }
+                        else if (center > paddle.x && center < paddle.x+grid){  //1
+                            ball.dy = -2.76;
+                            ball.dx = -6.51;
+                        }
+                        else if (center > paddle.x+grid && center < paddle.x+grid*2){  //2
+                            ball.dy = -5;
+                            ball.dx = -5;
+                        }
+                        else if (center > paddle.x+grid*2 && center < paddle.x+grid*3){  //3
+                            ball.dy = -6.55;
+                            ball.dx = -2.66;
+                        }
+                        else if (center > paddle.x+grid*2 && center < paddle.x+grid*4){  //4
+                            ball.dy = -7.07;
+                            ball.dx = 0;
+                        }
+                        else if (center > paddle.x+grid*2 && center < paddle.x+grid*5){  //5
+                            ball.dy = -6.55;
+                            ball.dx = 2.66;
+                        }
+                        else if (center > paddle.x+grid*2 && center < paddle.x+grid*6){  //6
+                            ball.dy = -5;
+                            ball.dx = 5;
+                        }
+                        else if (center > paddle.x+grid*2 && center < paddle.x+grid*7){  //7
+                            ball.dy = -2.76;
+                            ball.dx = 6.51;
+                        }
+                        else{  //greater than 7, but still colliding with edge
+                            ball.dy = -1.35;
+                            ball.dx = 8;
+                        }
 
 
-                    playHitSound();
+                        playHitSound();
 
-                    // move ball above the paddle otherwise the collision will happen again
-                    // in the next frame
-                    ball.y = paddle.y - ball.width;
+                        // move ball above the paddle otherwise the collision will happen again
+                        // in the next frame
+                        ball.y = paddle.y - ball.width;
+                    }
                 }
 
                 // check to see if ball collides with atari block. if they do change velocity based off of which side ball hit
@@ -377,24 +433,32 @@
                         ball.dy *= -1;
                         ball.y = blocks[i].y - ball.width;
                         blocks[i].numHits++;
+                        blocksRemoved++;
+                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 2 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x+blocks[i].width + ball.width;
                         blocks[i].numHits++;
+                        blocksRemoved++;
+                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 3 ) {
                         ball.dy *= -1;
                         ball.y = blocks[i].y+blocks[i].height + ball.width;
                         blocks[i].numHits++;
+                        blocksRemoved++;
+                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 4 ) {
                         ball.dx *= -1;
                         ball.x = blocks[i].x - ball.width;
                         blocks[i].numHits++;
+                        blocksRemoved++;
+                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                 }
@@ -457,11 +521,16 @@
                         ball.dx = ballSpeed;
                     }
                 }
-                if (e.which === 32) {   // launch ball
+                if (e.which === 32) {   // launch ball (spacebar)
                     if (ballReset == true){
-                        ballSpeed = 5;
-                        ball.dy=-ballSpeed;
-                        ball.dx=ballSpeed;
+                        var ySpeeds = [-1.35, -2.76, -5, -6.55, -7.07, -6.55, -5, -2.76, -1.35];
+                        var xSpeeds = [-8, -6.51, -5, -2.66, 0, 2.66, 5, 6.51, 8];
+                        min = Math.ceil(0);
+                        max = Math.floor(9);
+                        var randomSpeed = Math.floor(Math.random() * (max - min) + min);
+                        ball.dy=ySpeeds[randomSpeed];
+                        ball.dx=xSpeeds[randomSpeed];
+                        
                         ballReset = false;
                         resetOnce = 0;
                     }
@@ -470,6 +539,10 @@
                 }
                 if (e.which === 27) {
                     alert("- paused -");
+                }
+
+                if (e.which === 82 && lose == true || e.which === 82){
+                    location.reload(); 
                 }
 
             });
@@ -496,13 +569,19 @@
             <br>
             <h3> [Esc]: pause </h3>
             <h3> [Space]: shoot ball </h3>
-            <br>
-            <br>
-            <h4> spacebar will activate buttons</h4>
-            <h4> if they've been clicked on for some reason </h4>
+            <h3> [R]: reset </h3>
+            
         </div>
 
-        
+        <!-- document.getElement functions-->
+        <p id="message"></p>
+
+        <h3 style="color: white"> lives: </h3>
+        <h3> \t </h3>
+        <div id="lifeOne" style="width: 25px; height: 25px; background-color: green; margin-right: 10px; border: solid 2px #ffffff"></div>
+        <div id="lifeTwo" style="width: 25px; height: 25px; background-color: green; margin-right: 10px; border: solid 2px #ffffff"></div>
+        <div id="lifeThree" style="width: 25px; height: 25px; background-color: green; border: solid 2px #ffffff"></div>
+
 
         <style>
             .button{
@@ -516,11 +595,12 @@
                 border: 2px solid white;
                 font-family: "Muli";
                 cursor: pointer;
+                text-decoration: none;
             }
         </style>
 
         <div style="margin-left: 50px; margin-top: 20px">
-            <button class="button" style="margin-left: 30px;" onclick="musicToggle()">Music</button>
+            <button class="button" style="margin-left: 30px;" onMousedown="musicToggle()">Music</button>
             <br><br>
             <button class="button" onclick="soundEffectToggle()">Sound Effects</button>
         </div>
