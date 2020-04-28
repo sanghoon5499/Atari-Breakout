@@ -1,17 +1,8 @@
 <!DOCTYPE html>
 <html>
-
-<!-- current bugs: 
-    - Spacebar triggers sound/effects buttons
-        - Solution: ?
-
--->
-
-
-
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Muli:wght@500&display=swap" rel="stylesheet"> 
-    <title></title>
+    <title> Atari Breakout by Sanghoon Choi</title>
     <style>
     html, body {
         height: 100%;
@@ -53,13 +44,13 @@
             var blocksRemoved = 0;
 
             const paddle = {
-                // start in the middle of the game in middle
+                // start at bottom of canvas in middle
                 x: canvas.width/2,
                 y: canvas.height-50,
                 width: grid*7,
                 height: paddleHeight,
 
-                // paddle velocity
+                // paddle starting velocity
                 dx: 0
             }
 
@@ -75,15 +66,15 @@
                 dy: -ballSpeed
             };
 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // MUSIC
 
             function musicToggle(){
-                music = !music;
+                music = !music; //if opposite
                 playMusic();
             }
             function soundEffectToggle(){
-                soundEffect = !soundEffect;
+                soundEffect = !soundEffect; //if opposite
                 playHitSound();
                 playBreakSound();
             }
@@ -97,12 +88,10 @@
                     audio.volume = 0.1;
                 }
                 else if (music == false){
-                    //var audio = new Audio("");
                     audio.pause();
                     audio.currentTime = 0;
                 }
             }
-
 
             function playHitSound() {
                 var audioFXOne = document.getElementById("soundFXOne");  // reference line 429
@@ -123,12 +112,13 @@
                     }
             }
 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Create block widths
             var blockWidths = [];
             var blockWidths2 = [];
             var blockWidths3 = [];
 
+            // rows 
             for (var i=0; i<4; i++){
                 min = Math.ceil(100);
                 max = Math.floor(160);
@@ -213,7 +203,7 @@
                 blocks.push(block); 
             }
 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // check for collision between two objects using axis-aligned bounding box (AABB)
             // see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
@@ -290,8 +280,7 @@
                 lose = true;
             }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // game loop
             function loop() {
@@ -309,6 +298,7 @@
                     totalReset = true;
                 }
 
+                // if user hasn't lost yet
                 if (totalReset == false){
                     // move paddles by their velocity
                     paddle.x += paddle.dx;
@@ -338,7 +328,6 @@
                         ball.x += ball.dx; 
                         ball.y += 0;
                     }
-                    //alert(ball.dx)
 
                     // prevent ball from going through walls by changing its velocity
                     if (ball.y < grid) {  //top
@@ -377,7 +366,6 @@
                 
                     // check to see if ball collides with paddle. if they do change x velocity
                     if (collides(ball, paddle)) {
-                        //ball.dy *= -1;
 
                         // //system to check where on the paddle ball hit to calculate angle of deflection
                         var center = ball.x + ball.width/2;
@@ -417,12 +405,9 @@
                             ball.dy = -1.35;
                             ball.dx = 8;
                         }
-
-
                         playHitSound();
 
                         // move ball above the paddle otherwise the collision will happen again
-                        // in the next frame
                         ball.y = paddle.y - ball.width;
                     }
                 }
@@ -434,7 +419,6 @@
                         ball.y = blocks[i].y - ball.width;
                         blocks[i].numHits++;
                         blocksRemoved++;
-                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 2 ) {
@@ -442,7 +426,6 @@
                         ball.x = blocks[i].x+blocks[i].width + ball.width;
                         blocks[i].numHits++;
                         blocksRemoved++;
-                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 3 ) {
@@ -450,7 +433,6 @@
                         ball.y = blocks[i].y+blocks[i].height + ball.width;
                         blocks[i].numHits++;
                         blocksRemoved++;
-                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                     else if (collides(ball, blocks[i]) == 4 ) {
@@ -458,13 +440,9 @@
                         ball.x = blocks[i].x - ball.width;
                         blocks[i].numHits++;
                         blocksRemoved++;
-                        //alert(blocksRemoved);
                         playHitSound();
                     } 
                 }
-
-                
-
 
                 // draw paddle
                 context.fillStyle = 'white';
@@ -479,7 +457,6 @@
                 context.fillRect(0, canvas.height - 1153, canvas.width, canvas.height);
 
                 // draw block
-                
                 for (var i=0; i<blocks.length; i++){    
                     var colorArray = ["#fe4a49", "#2ab7ca", "#fed766", "#005b96", "#851e3e", 
                                       "#fe8a71", "#35a79c", "#ee4035", "#f37736", "#7bc043",  
@@ -498,7 +475,6 @@
                         blocks[i].height=1;
                     }
                 }
-
             }
 
             // listen to keyboard events to move the paddles
@@ -582,7 +558,6 @@
         <div id="lifeTwo" style="width: 25px; height: 25px; background-color: green; margin-right: 10px; border: solid 2px #ffffff"></div>
         <div id="lifeThree" style="width: 25px; height: 25px; background-color: green; border: solid 2px #ffffff"></div>
 
-
         <style>
             .button{
                 background-color: black;
@@ -604,7 +579,6 @@
             <br><br>
             <button class="button" onclick="soundEffectToggle()">Sound Effects</button>
         </div>
-
 
         <!-- music elements for line 87 -->
         <audio id="musicOne" src="audio/music.wav"></audio>
