@@ -4,6 +4,19 @@ const grid = 15; // called grid because each "pixel" is a grid unit, hence why c
 const paddleHeight = grid; // 15
 const maxPaddleY = 640;
 
+nullScores();
+function nullScores() {
+  if (localStorage.getItem("first") == null) {
+    localStorage.setItem("first", 0);
+  }
+  if (localStorage.getItem("second") == null) {
+    localStorage.setItem("second", 0);
+  }
+  if (localStorage.getItem("third") == null) {
+    localStorage.setItem("third", 0);
+  }
+}
+
 var paddleSpeed = 5;
 var ballSpeed = 2.5;
 var numHits = 0;
@@ -18,6 +31,9 @@ var music = false;
 var soundEffect = true;
 
 var blocksRemoved = 0;
+
+var score = 0;
+var blockscore = 15;
 
 const paddle = {
   // start at bottom of canvas in middle
@@ -242,18 +258,84 @@ function lives() {
 }
 
 function loseScreen() {
+  highScores();
   document.getElementById("message").innerHTML = "You Lose";
-  document.getElementById("message").style.color = "white";
-  document.getElementById("message").style.position = "absolute";
-  document.getElementById("message").style.fontSize = "60px";
+  document.getElementById("currScore").innerHTML = "Your Score: " + score;
+  document.getElementById("highScoreTitle").innerHTML = "High Scores";
+  updateHighScores(score);
+  textProperties();
   lose = true;
 }
 function winScreen() {
+  highScores();
   document.getElementById("message").innerHTML = "You Win!";
-  document.getElementById("message").style.color = "white";
-  document.getElementById("message").style.position = "absolute";
-  document.getElementById("message").style.fontSize = "60px";
+  document.getElementById("currScore").innerHTML = "Your Score: " + score;
+  document.getElementById("highScoreTitle").innerHTML = "High Scores";
+
+  updateHighScores(score);
+  textProperties();
   lose = true;
+}
+
+function updateHighScores(score) {
+  if (score >= localStorage.getItem("first")) {
+    localStorage.setItem("third", localStorage.getItem("second"));
+    localStorage.setItem("second", localStorage.getItem("first"));
+    localStorage.setItem("first", score);
+  } else if (
+    score >= localStorage.getItem("second") &&
+    score < localStorage.getItem("first")
+  ) {
+    localStorage.setItem("third", localStorage.getItem("second"));
+    localStorage.setItem("second", score);
+  } else if (
+    score >= localStorage.getItem("third") &&
+    score < localStorage.getItem("second")
+  ) {
+    localStorage.setItem("third", score);
+  }
+
+  document.getElementById("score1").innerHTML =
+    "1. " + localStorage.getItem("first");
+  document.getElementById("score2").innerHTML =
+    "2. " + localStorage.getItem("second");
+  document.getElementById("score3").innerHTML =
+    "3. " + localStorage.getItem("third");
+}
+
+function textProperties() {
+  document.getElementById("message").style.color = "white";
+  document.getElementById("message").style.position = "relative";
+  document.getElementById("message").style.fontSize = "60px";
+
+  document.getElementById("currScore").style.color = "white";
+  document.getElementById("currScore").style.position = "relative";
+  document.getElementById("currScore").style.fontSize = "30px";
+
+  document.getElementById("highScoreTitle").style.color = "white";
+  document.getElementById("highScoreTitle").style.position = "relative";
+  document.getElementById("highScoreTitle").style.fontSize = "40px";
+
+  document.getElementById("score1").style.color = "white";
+  document.getElementById("score1").style.position = "relative";
+  document.getElementById("score1").style.fontSize = "30px";
+
+  document.getElementById("score2").style.color = "white";
+  document.getElementById("score2").style.position = "relative";
+  document.getElementById("score2").style.fontSize = "30px";
+
+  document.getElementById("score3").style.color = "white";
+  document.getElementById("score3").style.position = "relative";
+  document.getElementById("score3").style.fontSize = "30px";
+}
+
+function highScores() {
+  document.getElementById("highScores").style.position = "absolute";
+  document.getElementById("highScores").style.width = "450px";
+  document.getElementById("highScores").style.height = "600px";
+  document.getElementById("highScores").style.border = "solid 2px #cccccc";
+  document.getElementById("highScores").style.zIndex = "1000";
+  document.getElementById("highScores").style.backgroundColor = "#464646";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,24 +476,28 @@ function loop() {
       blocks[i].numHits++;
       blocksRemoved++;
       playHitSound();
+      score += blockscore;
     } else if (collides(ball, blocks[i]) == 2) {
       ball.dx *= -1;
       ball.x = blocks[i].x + blocks[i].width + ball.width;
       blocks[i].numHits++;
       blocksRemoved++;
       playHitSound();
+      score += blockscore;
     } else if (collides(ball, blocks[i]) == 3) {
       ball.dy *= -1;
       ball.y = blocks[i].y + blocks[i].height + ball.width;
       blocks[i].numHits++;
       blocksRemoved++;
       playHitSound();
+      score += blockscore;
     } else if (collides(ball, blocks[i]) == 4) {
       ball.dx *= -1;
       ball.x = blocks[i].x - ball.width;
       blocks[i].numHits++;
       blocksRemoved++;
       playHitSound();
+      score += blockscore;
     }
   }
 
@@ -525,6 +611,16 @@ document.addEventListener("keydown", function (e) {
   }
   if (e.which === 27) {
     alert("- paused -");
+  }
+
+  if (e.which === 67) {
+    var r = confirm("Reset High Scores?");
+    if (r == true) {
+      localStorage.clear();
+      nullScores();
+    } else {
+      nullScores();
+    }
   }
 
   if ((e.which === 82 && lose == true) || e.which === 82) {
