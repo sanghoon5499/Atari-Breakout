@@ -303,30 +303,50 @@ function updateHighScores(score) {
     "3. " + localStorage.getItem("third");
 }
 
+
+// function textProperties() {
+//   document.getElementById("message").style.color = "white";
+//   document.getElementById("message").style.position = "relative";
+//   document.getElementById("message").style.fontSize = "60px";
+
+//   document.getElementById("currScore").style.color = "white";
+//   document.getElementById("currScore").style.position = "relative";
+//   document.getElementById("currScore").style.fontSize = "30px";
+
+//   document.getElementById("highScoreTitle").style.color = "white";
+//   document.getElementById("highScoreTitle").style.position = "relative";
+//   document.getElementById("highScoreTitle").style.fontSize = "40px";
+
+//   document.getElementById("score1").style.color = "white";
+//   document.getElementById("score1").style.position = "relative";
+//   document.getElementById("score1").style.fontSize = "30px";
+
+//   document.getElementById("score2").style.color = "white";
+//   document.getElementById("score2").style.position = "relative";
+//   document.getElementById("score2").style.fontSize = "30px";
+
+//   document.getElementById("score3").style.color = "white";
+//   document.getElementById("score3").style.position = "relative";
+//   document.getElementById("score3").style.fontSize = "30px";
+// }
+
+// function highScores() {
+//   document.getElementById("highScores").style.position = "absolute";
+//   document.getElementById("highScores").style.width = "450px";
+//   document.getElementById("highScores").style.height = "600px";
+//   document.getElementById("highScores").style.border = "solid 2px #cccccc";
+//   document.getElementById("highScores").style.zIndex = "1000";
+//   document.getElementById("highScores").style.backgroundColor = "#464646";
+// }
+//////////////////////////////////////////////////////////////////////
 function textProperties() {
-  document.getElementById("message").style.color = "white";
-  document.getElementById("message").style.position = "relative";
-  document.getElementById("message").style.fontSize = "60px";
-
-  document.getElementById("currScore").style.color = "white";
-  document.getElementById("currScore").style.position = "relative";
-  document.getElementById("currScore").style.fontSize = "30px";
-
-  document.getElementById("highScoreTitle").style.color = "white";
-  document.getElementById("highScoreTitle").style.position = "relative";
-  document.getElementById("highScoreTitle").style.fontSize = "40px";
-
-  document.getElementById("score1").style.color = "white";
-  document.getElementById("score1").style.position = "relative";
-  document.getElementById("score1").style.fontSize = "30px";
-
-  document.getElementById("score2").style.color = "white";
-  document.getElementById("score2").style.position = "relative";
-  document.getElementById("score2").style.fontSize = "30px";
-
-  document.getElementById("score3").style.color = "white";
-  document.getElementById("score3").style.position = "relative";
-  document.getElementById("score3").style.fontSize = "30px";
+  document.getElementById("message").style.cssText = "color: white; position: relative; fontSize: 60px";
+  document.getElementById("highScoreTitle").style.cssText = "color: white; position: relative; fontSize: 40px";
+  
+  var elementsList = ["score1", "score2", "score3", "currScore"];
+  for (i = 0; i < elementsList.length; i++) {
+    document.getElementById(elementsList[i]).style.cssText = "color: white; position: relative; fontSize: 30px";
+  }
 }
 
 function highScores() {
@@ -468,38 +488,33 @@ function loop() {
     }
   }
 
-  // check to see if ball collides with atari block. if they do change velocity based off of which side ball hit
+  function updateBlock(i) {
+    blocks[i].numHits++;
+    blocksRemoved++;
+    playHitSound();
+    score += blockscore;
+  }
+
   for (var i = 0; i < blocks.length; i++) {
     if (collides(ball, blocks[i]) == 1) {
       ball.dy *= -1;
       ball.y = blocks[i].y - ball.width;
-      blocks[i].numHits++;
-      blocksRemoved++;
-      playHitSound();
-      score += blockscore;
+      updateBlock(i);
     } else if (collides(ball, blocks[i]) == 2) {
       ball.dx *= -1;
       ball.x = blocks[i].x + blocks[i].width + ball.width;
-      blocks[i].numHits++;
-      blocksRemoved++;
-      playHitSound();
-      score += blockscore;
+      updateBlock(i);
     } else if (collides(ball, blocks[i]) == 3) {
       ball.dy *= -1;
       ball.y = blocks[i].y + blocks[i].height + ball.width;
-      blocks[i].numHits++;
-      blocksRemoved++;
-      playHitSound();
-      score += blockscore;
+      updateBlock(i);
     } else if (collides(ball, blocks[i]) == 4) {
       ball.dx *= -1;
       ball.x = blocks[i].x - ball.width;
-      blocks[i].numHits++;
-      blocksRemoved++;
-      playHitSound();
-      score += blockscore;
+      updateBlock(i);
     }
   }
+
 
   // draw paddle
   context.fillStyle = "white";
@@ -516,36 +531,12 @@ function loop() {
   // draw block
   for (var i = 0; i < blocks.length; i++) {
     var colorArray = [
-      "#fe4a49",
-      "#2ab7ca",
-      "#fed766",
-      "#005b96",
-      "#851e3e",
-      "#fe8a71",
-      "#35a79c",
-      "#ee4035",
-      "#f37736",
-      "#7bc043",
-      "#0392cf",
-      "#ffcc5c",
-      "#ff6f69",
-      "#ff5588",
-      "#3d1e6d",
-      "#c68642",
-      "#64a1f4",
-      "#01FF70",
-      "#39CCCC",
-      "#7FDBFF",
-      "#0392cf",
-      "#ffeead",
-      "#ff6f69",
-      "#ffcc5c",
-      "#88d8b0",
-      "#d11141",
-      "#00b159",
-      "#00aedb",
-      "#f37735",
-      "#ffc425",
+      "#fe4a49", "#2ab7ca", "#fed766", "#005b96", "#851e3e", 
+      "#fe8a71", "#35a79c", "#ee4035", "#f37736", "#7bc043", 
+      "#0392cf", "#ffcc5c", "#ff6f69", "#ff5588", "#3d1e6d", 
+      "#c68642", "#64a1f4", "#01FF70", "#39CCCC", "#7FDBFF",
+      "#0392cf", "#ffeead", "#ff6f69", "#ffcc5c", "#88d8b0", 
+      "#d11141", "#00b159", "#00aedb", "#f37735", "#ffc425",
     ];
     if (blocks[i].numHits < 2) {
       context.fillStyle = colorArray[i];
@@ -566,9 +557,9 @@ function loop() {
 
 // listen to keyboard events to move the paddles
 // see https://css-tricks.com/snippets/javascript/javascript-keycodes/ for keycodes
-document.addEventListener("keydown", function (e) {
+document.addEventListener("keydown", function (event) {
   // right arrow key
-  if (e.which === 39) {
+  if (event.which === 39) {  //e.which === 39
     paddle.dx = paddleSpeed;
     if (ballReset == true) {
       ballSpeed = paddleSpeed;
@@ -576,28 +567,24 @@ document.addEventListener("keydown", function (e) {
     }
   }
   // left arrow key
-  else if (e.which === 37) {
+  else if (event.which === 37) {
     paddle.dx = -paddleSpeed;
     if (ballReset == true) {
       ballSpeed = -paddleSpeed;
       ball.dx = ballSpeed;
     }
   }
-  if (e.which === 32) {
+  if (event.which === 32) {
     // launch ball (spacebar)
     if (ballReset == true) {
       var ySpeeds = [
-        -0.675,
-        -1.38,
-        -2.5,
-        -3.275,
-        -3.535,
-        -3.275,
-        -2.5,
-        -1.38,
-        -0.675,
+        -0.675, -1.38, -2.5,
+        -3.275, -3.535, -3.275,
+        -2.5, -1.38, -0.675,
       ];
-      var xSpeeds = [-4, -3.255, -2.5, -1.33, 0, 1.33, 2.5, 3.255, 4];
+      var xSpeeds = [-4, -3.255, -2.5, 
+                     -1.33, 0, 1.33, 
+                     2.5, 3.255, 4];
       min = Math.ceil(0);
       max = Math.floor(9);
       var randomSpeed = Math.floor(Math.random() * (max - min) + min);
@@ -609,11 +596,11 @@ document.addEventListener("keydown", function (e) {
     } else {
     }
   }
-  if (e.which === 27) {
+  if (event.which === 27) {
     alert("- paused -");
   }
 
-  if (e.which === 67) {
+  if (event.which === 67) {
     var r = confirm("Reset High Scores?");
     if (r == true) {
       localStorage.clear();
@@ -623,7 +610,7 @@ document.addEventListener("keydown", function (e) {
     }
   }
 
-  if ((e.which === 82 && lose == true) || e.which === 82) {
+  if ((event.which === 82 && lose == true) || e.which === 82) {
     location.reload();
   }
 });
