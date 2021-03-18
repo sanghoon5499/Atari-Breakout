@@ -303,42 +303,6 @@ function updateHighScores(score) {
     "3. " + localStorage.getItem("third");
 }
 
-
-// function textProperties() {
-//   document.getElementById("message").style.color = "white";
-//   document.getElementById("message").style.position = "relative";
-//   document.getElementById("message").style.fontSize = "60px";
-
-//   document.getElementById("currScore").style.color = "white";
-//   document.getElementById("currScore").style.position = "relative";
-//   document.getElementById("currScore").style.fontSize = "30px";
-
-//   document.getElementById("highScoreTitle").style.color = "white";
-//   document.getElementById("highScoreTitle").style.position = "relative";
-//   document.getElementById("highScoreTitle").style.fontSize = "40px";
-
-//   document.getElementById("score1").style.color = "white";
-//   document.getElementById("score1").style.position = "relative";
-//   document.getElementById("score1").style.fontSize = "30px";
-
-//   document.getElementById("score2").style.color = "white";
-//   document.getElementById("score2").style.position = "relative";
-//   document.getElementById("score2").style.fontSize = "30px";
-
-//   document.getElementById("score3").style.color = "white";
-//   document.getElementById("score3").style.position = "relative";
-//   document.getElementById("score3").style.fontSize = "30px";
-// }
-
-// function highScores() {
-//   document.getElementById("highScores").style.position = "absolute";
-//   document.getElementById("highScores").style.width = "450px";
-//   document.getElementById("highScores").style.height = "600px";
-//   document.getElementById("highScores").style.border = "solid 2px #cccccc";
-//   document.getElementById("highScores").style.zIndex = "1000";
-//   document.getElementById("highScores").style.backgroundColor = "#464646";
-// }
-//////////////////////////////////////////////////////////////////////
 function textProperties() {
   document.getElementById("message").style.cssText = "color: white; position: relative; fontSize: 60px";
   document.getElementById("highScoreTitle").style.cssText = "color: white; position: relative; fontSize: 40px";
