@@ -4,7 +4,7 @@ Creating Atari Breakout using JavaScript.
 
 Game optimized for 1080p resolution displays; playing on a higher resolution display may make the game run slower.
 
-Play it here: https://sanghoon5499.github.io/atari/
+Play it here: https://sanghoon5499.github.io/Atari-Breakout/
 
 
 
